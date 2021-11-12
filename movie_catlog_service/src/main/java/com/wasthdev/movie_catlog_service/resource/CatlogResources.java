@@ -37,10 +37,10 @@ public class CatlogResources {
 //                 new Rating("124",5)
 //        );
 
-        Userrating ratings = restTemplate.getForObject("http://localhost:8083/ratings/user/"+userId, Userrating.class);
+        Userrating ratings = restTemplate.getForObject("http://rating-data-service/ratings/user/"+userId, Userrating.class);
        return ratings.getUserRating().stream().map(rating -> {
                   ///for exach movie Id call movie info and get detauils
-                   Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieID(), Movie.class);
+                   Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieID(), Movie.class);
 ///Put them all together
                    return new CatlogItem(movie.getName(),"desc", rating.getRating());
        })
