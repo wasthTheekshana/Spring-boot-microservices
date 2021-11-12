@@ -3,6 +3,7 @@ package com.wasthdev.movie_catlog_service.resource;
 import com.wasthdev.movie_catlog_service.model.CatlogItem;
 import com.wasthdev.movie_catlog_service.model.Movie;
 import com.wasthdev.movie_catlog_service.model.Rating;
+import com.wasthdev.movie_catlog_service.model.Userrating;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,12 +32,24 @@ public class CatlogResources {
     public List<CatlogItem> getCatalog(@PathVariable("userId") String userId){
 
 
-        List<Rating> ratings = Arrays.asList(
-                new Rating("1234",5),
-                new Rating("124",5)
-        );
-       return ratings.stream().map(rating -> {
+//        List<Rating> ratings = Arrays.asList(
+//                new Rating("1234",5),
+//                 new Rating("124",5)
+//        );
+
+        Userrating ratings = restTemplate.getForObject("http://localhost:8083/ratings/user/"+userId, Userrating.class);
+       return ratings.getUserRating().stream().map(rating -> {
+                  ///for exach movie Id call movie info and get detauils
                    Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieID(), Movie.class);
+///Put them all together
+                   return new CatlogItem(movie.getName(),"desc", rating.getRating());
+       })
+                .collect(Collectors.toList());
+
+    }
+}
+
+
 
                  /*
                    Movie movie = webClientBuilder.build()
@@ -46,9 +59,3 @@ public class CatlogResources {
                            .bodyToMono(Movie.class)
                            .block();
                    */
-                   return new CatlogItem(movie.getName(),"desc", rating.getRating());
-       })
-                .collect(Collectors.toList());
-
-    }
-}
